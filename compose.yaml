@@ -1,0 +1,18 @@
+services:
+  dayflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dayflow:ultimate
+    container_name: dayflow-app
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3

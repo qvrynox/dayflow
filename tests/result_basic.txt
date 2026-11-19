@@ -1,0 +1,49 @@
+PASS Dashboard loads without errors
+PASS Seven navigation sections
+PASS 9 initial tasks are daily recurring
+PASS 5 seeded habits
+PASS Dashboard content is visible
+PASS route dashboard
+PASS route tasks
+PASS route timeline
+PASS route calendar
+PASS route habits
+PASS route stats
+PASS route settings
+PASS Daily routines visible tomorrow
+PASS New task created and saved
+PASS New task displayed alongside routine
+PASS New task title displayed
+PASS Duplicate task rejected
+PASS Recurring task template added
+PASS Recurring task visible on first day
+PASS New recurring task visible on following day
+PASS One-time task absent following day
+PASS Edit updates same ID, no extra record
+PASS Completed day is recorded
+PASS Recurrence on different day remains pending
+PASS Search filters task list
+PASS Status filter excludes pending task
+PASS Delete offers recurring series options
+PASS Delete removes task
+PASS Habit checked with actual date
+PASS Habit created
+PASS Habit edited
+PASS Habit deleted
+PASS Calendar has 42 day cells
+PASS Calendar next-month works
+PASS Statistics show charts
+PASS Dark mode toggled
+PASS Dark mode persisted
+PASS Invalid JSON preserves existing records
+PASS Test alert toast appears
+PASS No horizontal overflow at 320px
+PASS No horizontal overflow at 375px
+PASS No horizontal overflow at 390px
+PASS No horizontal overflow at 768px
+PASS No horizontal overflow at 1024px
+PASS No horizontal overflow at 1440px
+PASS Mobile menu is functional
+PASS Mobile menu navigates
+PASS No JavaScript errors
+SUCCESS 48 checks

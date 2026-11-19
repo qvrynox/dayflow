@@ -1,0 +1,12 @@
+PASS All-dates filter
+PASS Responsive route dashboard
+PASS Responsive route tasks
+PASS Responsive route timeline
+PASS Responsive route calendar
+PASS Responsive route habits
+PASS Responsive route stats
+PASS Responsive route settings
+IMPORT MESSAGE ['Деректер тазартылды', 'Деректер импортталды9 тапсырма, 5 әдет қалпына келді.']
+PASS Valid JSON import restores state
+PASS Migration from DayFlow v4 preserves recurring completion and habits
+PASS No runtime errors

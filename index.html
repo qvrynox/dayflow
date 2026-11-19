@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6ff">
+  <meta name="description" content="DayFlow — күніңізді әдемі жоспарлаңыз. Тапсырмалар, күн тәртібі, әдеттер, күнтізбе және еске салғыштар.">
+  <title>DayFlow — Күніңіздің ырғағы</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css?v=ultimate-5.0.0">
+  <script src="./app.js?v=ultimate-5.0.0" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Негізгі мәзір">
+      <button type="button" class="brand" data-route="dashboard" aria-label="DayFlow басты бет">
+        <span class="brand-logo"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="m7 17 6 6L25 10" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="brand-text"><strong>day<span>flow.</span></strong><small>Күніңіздің ырғағы</small></span>
+      </button>
+      <div class="nav-overline">МЕНІҢ КЕҢІСТІГІМ</div>
+      <nav id="sidebarNav" class="sidebar-nav"></nav>
+      <div class="sidebar-fill"></div>
+      <section class="sidebar-motivation" aria-label="Мотивация">
+        <span class="shine-symbol">✦</span>
+        <span class="tiny-label">КҮНДІ ЖОСПАРЛА</span>
+        <strong>Үлкен жетістік<br>кішкентай қадамнан.</strong>
+        <p>Бәрі бүгіннен басталады.</p>
+        <button class="sidebar-cta" type="button" data-action="new-task">Жаңа жоспар <span>↗</span></button>
+      </section>
+      <button type="button" class="sidebar-profile" data-route="settings" id="sidebarProfile" aria-label="Профиль және баптаулар"></button>
+    </aside>
+    <div class="shell-content">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Жұмыс кеңістігі</span><span class="breadcrumb-divider">/</span><strong id="currentRouteLabel">Басты бет</strong></div>
+        <div class="header-actions">
+          <div class="clock-chip" id="liveClock" aria-live="off"></div>
+          <button type="button" class="header-icon" id="notificationButton" data-action="notification-center" aria-label="Ескертулер" title="Ескертулер"></button>
+          <button type="button" class="header-icon" id="themeButton" data-action="toggle-theme" aria-label="Қараңғы режимге ауыстыру"></button>
+          <button type="button" class="header-avatar" data-route="settings" id="headerAvatar" aria-label="Баптаулар"></button>
+        </div>
+      </header>
+      <main id="app" class="main-view" tabindex="-1">
+        <div class="loading-screen"><span class="loading-ring"></span><p>DayFlow жүктелуде…</p></div>
+      </main>
+      <footer class="app-footer"><span>DayFlow © 2026</span><span>✦ Күніңіз өз қолыңызда</span><span id="storageStatus">Деректер құрылғыда сақталады</span></footer>
+    </div>
+  </div>
+  <nav id="mobileNav" class="mobile-nav" aria-label="Мобильді навигация"></nav>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="toast-stack" aria-live="polite" aria-relevant="additions"></div>
+  <input type="file" id="importInput" accept=".json,application/json" hidden>
+  <noscript><div class="no-js">DayFlow жұмыс істеуі үшін браузердегі JavaScript қосылуы керек.</div></noscript>
+</body>
+</html>

@@ -1,0 +1,11 @@
+PASS Time overlap warning appears
+PASS Overlap still allows saving
+PASS User input is HTML escaped
+PASS End time must be later than start time
+PASS All data cleared
+PASS Empty state remains empty after reload
+PASS Start alarm fires near start time
+PASS Deadline warning fires at lead time
+PASS Focus timer starts
+PASS Focus timer pauses
+PASS No runtime exceptions
