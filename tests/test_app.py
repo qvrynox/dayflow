@@ -7,6 +7,7 @@ import asyncio
 import json
 import pathlib
 from playwright.async_api import async_playwright
+from workspace_fixture import open_workspace
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -24,7 +25,7 @@ async def load(page):
        window.__testStore = store;
     }''')
     await page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
-    await page.wait_for_timeout(70)
+    await open_workspace(page)
     return errors
 
 async def run():
@@ -41,7 +42,7 @@ async def run():
     async def get_state():
       return await page.evaluate("JSON.parse(window.__testStore['dayflow.v5.state'])")
 
-    await test('Dashboard loads without errors',await page.locator('h1').count()==1 and not errors)
+    await test('Dashboard loads without errors',await page.locator('#app h1').count()==1 and not errors)
     await test('Seven navigation sections',await page.locator('#sidebarNav .nav-btn').count()==7)
     st=await get_state()
     await test('9 initial tasks are daily recurring',len(st['tasks'])==9 and all(t['repeat']=='daily' for t in st['tasks']))
@@ -189,7 +190,7 @@ async def run():
     await page.locator('[data-action="mobile-menu"]').click()
     await test('Mobile menu is functional',await page.locator('.modal .nav-btn').count()==7)
     await page.locator('.modal [data-route="dashboard"]').click()
-    await test('Mobile menu navigates',await page.locator('h1').count()==1)
+    await test('Mobile menu navigates',await page.locator('#app h1').count()==1)
 
     await test('No JavaScript errors',not errors)
     print('SUCCESS',len(result),'checks')

@@ -3,6 +3,7 @@ import asyncio
 import json
 from pathlib import Path
 from playwright.async_api import async_playwright
+from workspace_fixture import open_workspace
 ROOT=Path(__file__).resolve().parents[1]
 async def prepare(page, stored=None, clock=None):
     if clock:
@@ -15,7 +16,7 @@ async def prepare(page, stored=None, clock=None):
       window.__data=data;
     }''',stored)
     await page.add_script_tag(content=(ROOT/'app.js').read_text())
-    await page.wait_for_timeout(50)
+    await open_workspace(page)
 async def run():
  async with async_playwright() as p:
   browser=await p.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])

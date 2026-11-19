@@ -2,11 +2,13 @@
 import asyncio,json
 from pathlib import Path
 from playwright.async_api import async_playwright
+from workspace_fixture import open_workspace
 ROOT=Path(__file__).resolve().parents[1]
 async def init(page,existing=None):
  await page.set_content((ROOT/'index.html').read_text());await page.add_style_tag(content=(ROOT/'style.css').read_text())
  await page.evaluate('''state=>{const store=state||{};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>store[k]??null,setItem:(k,v)=>store[k]=v,removeItem:k=>delete store[k]}});window.__store=store;}''',existing)
- await page.add_script_tag(content=(ROOT/'app.js').read_text());await page.wait_for_timeout(60)
+ await page.add_script_tag(content=(ROOT/'app.js').read_text())
+ await open_workspace(page)
 async def run():
  async with async_playwright() as p:
   browser=await p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])

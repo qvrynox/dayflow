@@ -184,16 +184,15 @@
     }
     return null;
   }
-  function loadState() {
+  function readLocalBackup() {
     try {
       const text=localStorage.getItem(STORE);
-      if(text!==null)return validateState(JSON.parse(text));
-      const old=loadLegacy();if(old){localStorage.setItem(STORE,JSON.stringify(old));return old}
-      const seed=freshState();localStorage.setItem(STORE,JSON.stringify(seed));return seed;
-    } catch(e){console.warn('DayFlow: деректі жүктеу қатесі:',e.message);return blankState()}
+      return text===null?loadLegacy():validateState(JSON.parse(text));
+    } catch(e){console.warn('DayFlow: жергілікті деректі оқу қатесі:',e.message);return null}
   }
 
-  let state=loadState();
+  let state=null;
+  let saveState=null;
   const ui={route:'dashboard',tasksQuery:'',tasksCategory:'all',tasksStatus:'all',tasksDate:'',taskScope:'all',calendarYear:new Date().getFullYear(),calendarMonth:new Date().getMonth(),selectedDate:nowDay(),timelineDate:nowDay(),habitWeek:monday(nowDay()),modal:false,alarmCount:0};
   const dom={app:document.getElementById('app'),nav:document.getElementById('sidebarNav'),mobile:document.getElementById('mobileNav'),modal:document.getElementById('modalRoot'),toasts:document.getElementById('toastRoot')};
   const shownThisVisit=new Set();
@@ -203,8 +202,13 @@
   let lastSearchFocus=null;
 
   function persist() {
-    try{localStorage.setItem(STORE,JSON.stringify(state));document.getElementById('storageStatus').textContent='Өзгерістер сақталды';return true}
-    catch(e){toast('Деректер сақталмады','Браузер сақтау орны толған немесе бұғатталған.','error');return false}
+    const serialized=JSON.stringify(state);
+    if(!saveState||new TextEncoder().encode(serialized).length>900000){
+      toast('Деректер сақталмады','Дерек көлемі Firebase шегінен асты.','error');
+      return false;
+    }
+    saveState(serialized);
+    return true;
   }
   function commit(){persist();render();}
   function occurs(t,day) {
@@ -259,7 +263,7 @@
     document.getElementById('liveClock').textContent=liveClockString();
   }
   function liveClockString(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())} · ${d.getDate()} ${MONTHS[d.getMonth()]}`}
-  function render(){renderChrome();const map={dashboard:renderDashboard,tasks:renderTasks,timeline:renderTimeline,calendar:renderCalendar,habits:renderHabits,stats:renderStats,settings:renderSettings};try{dom.app.innerHTML=`<div class="page-animate">${(map[ui.route]||renderDashboard)()}</div>`}catch(e){console.error('DayFlow rendering error',e);dom.app.innerHTML=empty('Бөлімді ашу мүмкін болмады','Бетті жаңартып көріңіз.')}}
+  function render(){if(!state)return;renderChrome();const map={dashboard:renderDashboard,tasks:renderTasks,timeline:renderTimeline,calendar:renderCalendar,habits:renderHabits,stats:renderStats,settings:renderSettings};try{dom.app.innerHTML=`<div class="page-animate">${(map[ui.route]||renderDashboard)()}</div>`}catch(e){console.error('DayFlow rendering error',e);dom.app.innerHTML=empty('Бөлімді ашу мүмкін болмады','Бетті жаңартып көріңіз.')}}
   function navigate(route) {if(!NAV.some(n=>n.id===route))route='dashboard';closeModal();ui.route=route;history.replaceState(null,'',`#${route}`);render();window.scrollTo({top:0,behavior:'auto'})}
   function toast(title,subtitle='',type='success') {
     const node=document.createElement('div');node.className=`toast ${type==='warn'?'warn':type==='error'?'error':''}`;
@@ -373,8 +377,8 @@
       <section class="setting-card card"><h2>Еске салғыш және будильник</h2><p class="card-desc">Уақыт басталғанда және дедлайн жақындағанда ескерту.</p><div style="display:grid;gap:17px;margin-top:20px">${toggle('alerts','Сайт ішіндегі ескертулер','DayFlow ашық кезде хабарлама шығады.',s.alerts)}${toggle('sound','Будильник дыбысы','Сайт ашық және дыбысқа рұқсат берілгенде сигнал беріледі.',s.sound)}${toggle('notifications','Браузер хабарламалары','HTTPS не localhost мекенжайында рұқсат қажет.',s.notifications)}</div>
       <div class="field" style="margin-top:20px"><label for="leadSelect">Дедлайнға қанша минут қалғанда?</label><select id="leadSelect" class="select">${selectOptions([['0','Дедлайн сәтінде'],['5','5 минут'],['10','10 минут'],['15','15 минут'],['30','30 минут'],['60','60 минут']],String(s.lead))}</select></div>
       <div class="setting-actions" style="margin-top:16px"><button class="btn btn-soft" data-action="test-alert">${svg('bell')} Ескертуді тексеру</button><button class="btn btn-secondary" data-action="test-sound">${svg('volume')} Дыбысты тексеру</button></div><p class="card-desc" style="margin-top:10px">Ескерту үшін сайт ашық болуы керек. Браузер жабылса хабарламаның келуіне кепілдік жоқ.</p></section>
-      <section class="setting-card card"><h2>Деректерді басқару</h2><p class="card-desc">Барлық жазба осы браузерде localStorage арқылы сақталады.</p><div class="setting-actions" style="margin-top:18px"><button class="btn btn-secondary" data-action="export">${svg('download')} JSON экспорт</button><button class="btn btn-secondary" data-action="import">${svg('upload')} JSON импорт</button><button class="btn btn-danger" data-action="clear-data">${svg('trash')} Барлығын тазарту</button></div></section></div>
-      <aside class="settings-list"><section class="setting-card card"><div class="section-head"><h2>Деректер қауіпсіздігі</h2><span class="metric-icon green">${svg('shield')}</span></div><p class="card-desc">Тапсырмалар серверге жіберілмейді. Әр браузердің сақтау орны бөлек. Деректерді тасымалдау үшін JSON файлын пайдаланыңыз.</p><div class="category-row"><span>Тапсырмалар</span><div class="progress-bar"><span class="progress-fill" style="--width:100%"></span></div><strong>${state.tasks.length}</strong></div><div class="category-row"><span>Әдеттер</span><div class="progress-bar"><span class="progress-fill" style="--width:100%"></span></div><strong>${state.habits.length}</strong></div></section>
+      <section class="setting-card card"><h2>Деректерді басқару</h2><p class="card-desc">Өзгерістер аккаунтыңызға сақталады.</p><div class="setting-actions" style="margin-top:18px"><button class="btn btn-secondary" data-action="export">${svg('download')} JSON экспорт</button><button class="btn btn-secondary" data-action="import">${svg('upload')} JSON импорт</button><button class="btn btn-secondary" data-action="restore-local">Браузердегі ескі деректі көшіру</button><button class="btn btn-danger" data-action="clear-data">${svg('trash')} Барлығын тазарту</button></div></section></div>
+      <aside class="settings-list"><section class="setting-card card"><div class="section-head"><h2>Деректер қауіпсіздігі</h2><span class="metric-icon green">${svg('shield')}</span></div><p class="card-desc">Жоспарларыңызға осы аккаунтпен кіргенде ғана қол жеткізе аласыз.</p><div class="category-row"><span>Тапсырмалар</span><div class="progress-bar"><span class="progress-fill" style="--width:100%"></span></div><strong>${state.tasks.length}</strong></div><div class="category-row"><span>Әдеттер</span><div class="progress-bar"><span class="progress-fill" style="--width:100%"></span></div><strong>${state.habits.length}</strong></div></section>
       <section class="quote-card"><small>✦ ЕСКЕ САЛУ</small><p>Жоспар жасаңыз, істерді орындаңыз, нәтижені бағалаңыз.</p></section></aside></div>`;
   }
 
@@ -468,14 +472,28 @@
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`DayFlow-${nowDay()}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);toast('Сақтық көшірме жүктелді','JSON файлды қауіпсіз жерде сақтаңыз.');
   }
   async function importData(file){
-    if(!file)return;
+    if(!file||!state)return;
+    const importer=saveState;
     if(file.size>8*1024*1024){toast('Файл тым үлкен','JSON файлы 8 МБ-тан аспауы керек.','error');return}
     try{
       const parsed=JSON.parse(await file.text()),incoming=validateState(parsed);
+      if(importer!==saveState)return;
       const previous=state;state=incoming;
       if(!persist()){state=previous;return}
       closeModal();render();toast('Деректер импортталды',`${state.tasks.length} тапсырма, ${state.habits.length} әдет қалпына келді.`);
     }catch(err){toast('JSON файлын импорттау мүмкін болмады',err instanceof SyntaxError?'JSON пішімі дұрыс емес.':err.message,'error')}
+  }
+  function restoreLocal(){
+    const backup=readLocalBackup();
+    if(!backup){toast('Браузерде ескі дерек табылмады');return}
+    confirmation('Ескі деректерді көшіру','Браузердегі деректер аккаунттағы қазіргі жоспарды алмастырады.',[
+      {label:'Бас тарту',cancel:true,callback:()=>{}},
+      {label:'Көшіру',callback:()=>{
+        const previous=state;state=backup;
+        if(!persist())state=previous;
+        render();
+      }}
+    ]);
   }
   function clearAll(){confirmation('Барлық деректі тазарту','Барлық тапсырмалар мен әдеттер және олардың тарихы өшіріледі. Демонстрациялық деректер автоматты түрде қайтып келмейді.',[
     {label:'Бас тарту',cancel:true,callback:()=>{}},
@@ -521,6 +539,7 @@
     }
   }
   function checkAlarms(){
+    if(!state)return;
     const now=Date.now(),day=nowDay();if(!state.settings.alerts&&!state.settings.notifications&&!state.settings.sound)return;
     const days=[day,addDays(day,-1)];
     for(const d of days)for(const t of dailyTasks(d)){
@@ -550,6 +569,7 @@
     if(ui.route==='dashboard')render();
   }
   function tick(){
+    if(!state)return;
     const time=document.getElementById('liveClock');if(time)time.textContent=liveClockString();
     const next=document.getElementById('nextCountdown');if(next){const n=nextOccurrence();next.textContent=n?clockRemaining(n.when-Date.now()):'Алдағы іс жоқ'}
     const focus=document.getElementById('focusDisplay');if(focus)focus.textContent=formatSeconds(focusRemaining());
@@ -568,6 +588,7 @@
   }
 
   document.addEventListener('click',event=>{
+    if(!state)return;
     // Unlock Web Audio during a user gesture where the browser permits it.
     if(state.settings.sound&&!audioContext)ensureAudio();
     if(event.target.classList?.contains('modal-layer')){closeModal();return}
@@ -618,6 +639,7 @@
       case 'test-sound':ringAlarm(true);toast('Дыбыс тексерілді','Егер естілмесе, браузер дыбысын қосыңыз.');break;
       case 'export':exportData();break;
       case 'import':document.getElementById('importInput').click();break;
+      case 'restore-local':restoreLocal();break;
       case 'clear-data':clearAll();break;
       case 'close-modal':closeModal();break;
       case 'confirm-choice':{
@@ -653,7 +675,7 @@
   });
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&ui.modal)closeModal();
-    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
+    if(state&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
       event.preventDefault();navigate('tasks');document.getElementById('tasksSearch')?.focus();
     }
   });
@@ -661,10 +683,30 @@
     const route=location.hash.slice(1);if(NAV.some(n=>n.id===route)&&route!==ui.route){ui.route=route;closeModal();render()}
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();checkAlarms()}});
-  window.addEventListener('storage',event=>{if(event.key===STORE&&event.newValue){try{state=validateState(JSON.parse(event.newValue));render()}catch(_){}}});
+  window.dayFlow = {
+    start(serialized, save) {
+      state=serialized===null?freshState():validateState(JSON.parse(serialized));
+      saveState=save;
+      const today=nowDay(),initial=location.hash.slice(1);
+      const date=new Date();
+      Object.assign(ui,{route:NAV.some(n=>n.id===initial)?initial:'dashboard',tasksQuery:'',tasksCategory:'all',tasksStatus:'all',tasksDate:'',taskScope:'all',calendarYear:date.getFullYear(),calendarMonth:date.getMonth(),selectedDate:today,timelineDate:today,habitWeek:monday(today),alarmCount:0});
+      shownThisVisit.clear();
+      lastDay=today;
+      if(serialized===null)persist();
+      render();tick();checkAlarms();
+    },
+    stop() {
+      closeModal();
+      state=null;
+      saveState=null;
+      lastSearchFocus=null;
+      dom.app.replaceChildren();
+      dom.toasts.replaceChildren();
+      document.documentElement.dataset.theme='light';
+    },
+    readLocalBackup
+  };
 
-  const initial=location.hash.slice(1);if(NAV.some(n=>n.id===initial))ui.route=initial;
-  render();tick();checkAlarms();
   window.setInterval(tick,1000);
   window.setInterval(checkAlarms,10000);
 })();

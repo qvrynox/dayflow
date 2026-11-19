@@ -132,3 +132,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(max-width:490px){.breadcrumb{flex:1;min-width:0;overflow:hidden}.breadcrumb strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.header-actions{flex:none}}
 @media(max-width:350px){.clock-chip{display:none}}
 @media(max-width:1040px){.breadcrumb{flex:1;min-width:0;overflow:hidden}.breadcrumb strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.header-actions{flex:none}}
+
+[hidden]{display:none!important}
+.account-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+.account-card{position:relative;width:min(100%,420px);padding:clamp(20px,6vw,36px)}
+.account-card form{display:grid;gap:16px;margin-top:20px}
+.account-card [role="status"]{margin-top:16px}
