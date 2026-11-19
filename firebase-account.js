@@ -42,6 +42,13 @@ const authMessages = {
   'auth/email-already-in-use': 'Бұл пошта тіркелген. Кіру батырмасын қолданыңыз.',
   'auth/weak-password': 'Күрделірек құпиясөз таңдаңыз. Кемінде 6 таңба енгізіңіз.',
   'auth/invalid-credential': 'Электрондық пошта немесе құпиясөз қате.',
+  'auth/configuration-not-found': 'Firebase Console → Authentication бөлімін ашып, Get started басыңыз және Email/Password әдісін қосыңыз.',
+  'auth/invalid-api-key': 'Firebase веб-конфигурациясындағы apiKey мәнін тексеріңіз.',
+  'auth/api-key-not-valid': 'Firebase веб-конфигурациясындағы apiKey мәнін тексеріңіз.',
+  'auth/app-not-authorized': 'Firebase API кілтінің шектеулерінде осы сайтқа рұқсат берілгенін тексеріңіз.',
+  'auth/unauthorized-domain': 'Firebase Authentication → Settings → Authorized domains ішіне осы сайттың доменін қосыңыз.',
+  'auth/admin-restricted-operation': 'Firebase жобасында жаңа аккаунт тіркеуге рұқсат берілгенін тексеріңіз.',
+  'auth/password-does-not-meet-requirements': 'Құпиясөз Firebase жобасының талаптарына сәйкес келмейді.',
   'auth/operation-not-allowed': 'Firebase жобасында Email/Password арқылы кіруді қосыңыз.',
   'auth/network-request-failed': 'Желіге қосылуды тексеріп, қайталап көріңіз.',
   'auth/too-many-requests': 'Сұрау тым көп. Біраздан кейін қайталап көріңіз.'
@@ -171,7 +178,12 @@ async function connect() {
       const authenticate = register ? authApi.createUserWithEmailAndPassword : authApi.signInWithEmailAndPassword;
       await authenticate(auth, email, password);
     } catch (error) {
-      message.textContent = authMessages[error.code] ?? 'Firebase аккаунтына кіру сәтсіз аяқталды.';
+      const code = error?.code;
+      const action = register ? 'Тіркелу' : 'Кіру';
+      const reason = authMessages[code] ?? 'Firebase сұрауы сәтсіз аяқталды.';
+      message.textContent = typeof code === 'string' && /^auth\/[a-z0-9-]+$/.test(code)
+        ? `${action} орындалмады. ${reason} (${code})`
+        : `${action} орындалмады. ${reason}`;
     } finally {
       for (const button of buttons) button.disabled = false;
     }
