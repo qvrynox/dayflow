@@ -4,6 +4,25 @@ const sdk = 'https://www.gstatic.com/firebasejs/12.5.0';
 const screen = document.querySelector('#accountScreen');
 const form = document.querySelector('#accountForm');
 const message = document.querySelector('#accountStatus');
+const title = document.querySelector('#accountTitle');
+const submit = document.querySelector('#accountSubmit');
+const mode = document.querySelector('#accountMode');
+const passwordInput = document.querySelector('#accountPassword');
+let registering = true;
+
+function setRegistrationMode(enabled) {
+  registering = enabled;
+  title.textContent = enabled ? 'DayFlow-ға тіркелу' : 'DayFlow-ға кіру';
+  submit.textContent = enabled ? 'Тіркелу' : 'Кіру';
+  mode.textContent = enabled ? 'Аккаунтым бар' : 'Жаңа аккаунт ашу';
+  passwordInput.value = '';
+  passwordInput.autocomplete = enabled ? 'new-password' : 'current-password';
+  if (enabled) passwordInput.minLength = 6;
+  else passwordInput.removeAttribute('minlength');
+  message.textContent = '';
+}
+
+mode.addEventListener('click', () => setRegistrationMode(!registering));
 const storageStatus = document.querySelector('#storageStatus');
 const retrySave = document.querySelector('#retrySave');
 const retryAccount = document.querySelector('#retryAccount');
@@ -136,7 +155,7 @@ async function connect() {
       form.reset();
       void openAccount(user);
     } else {
-      message.textContent = '';
+      setRegistrationMode(true);
     }
   });
 
@@ -144,7 +163,7 @@ async function connect() {
     event.preventDefault();
     const email = form.elements.email.value.trim();
     const password = form.elements.password.value;
-    const register = event.submitter?.value === 'register';
+    const register = registering;
     const buttons = form.querySelectorAll('button');
     for (const button of buttons) button.disabled = true;
     message.textContent = register ? 'Аккаунт жасалуда…' : 'Аккаунтқа кіріп жатырсыз…';

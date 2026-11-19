@@ -17,7 +17,7 @@
   <div class="ambient ambient-two" aria-hidden="true"></div>
   <main id="accountScreen" class="account-screen">
     <section class="account-card card" aria-labelledby="accountTitle">
-      <h1 id="accountTitle">DayFlow аккаунты</h1>
+      <h1 id="accountTitle">DayFlow-ға тіркелу</h1>
       <form id="accountForm" hidden>
         <div class="field">
           <label for="accountEmail">Электрондық пошта</label>
@@ -25,11 +25,11 @@
         </div>
         <div class="field">
           <label for="accountPassword">Құпиясөз</label>
-          <input class="input" id="accountPassword" name="password" type="password" autocomplete="current-password" required>
+          <input class="input" id="accountPassword" name="password" type="password" autocomplete="new-password" minlength="6" required>
         </div>
         <div class="setting-actions">
-          <button class="btn btn-primary" type="submit" value="login">Кіру</button>
-          <button class="btn btn-secondary" type="submit" value="register">Тіркелу</button>
+          <button class="btn btn-primary" id="accountSubmit" type="submit">Тіркелу</button>
+          <button class="btn btn-secondary" id="accountMode" type="button">Аккаунтым бар</button>
         </div>
       </form>
       <p id="accountStatus" role="status">Firebase қосылымы тексерілуде…</p>
